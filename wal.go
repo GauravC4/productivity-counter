@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+type record struct {
+	startTime time.Time
+	endTime   time.Time
+}
+
 const WAL_FILE = "wal.csv"
 
 func writeSessionToWAL(startTime time.Time, endTime time.Time) {
@@ -28,28 +33,10 @@ func writeSessionToWAL(startTime time.Time, endTime time.Time) {
 	log.Println("writeSessionToWAL done")
 }
 
-func dumpToWAL(content string) {
-	log.Printf("dumpToWAL involked for content len %d\n", len(content))
+func getRecordsFromWAL() []record {
+	log.Println("getRecordsFromWAL involked ...")
 
-	file, err := os.OpenFile(WAL_FILE, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	_, err = file.Write([]byte(content))
-	if err != nil {
-		log.Fatalf("Failed to write to file: %v\n", err)
-	}
-
-	log.Printf("dumpToWAL done")
-}
-
-func compressWAL() {
-	log.Println("compressWAL involked ...")
-
-	sessionsMap := make(map[time.Time]time.Time)
-	noOfLines := 0
+	records := make([]record, 0)
 
 	file, err := os.Open(WAL_FILE)
 	if err != nil {
@@ -78,8 +65,7 @@ func compressWAL() {
 				continue
 			}
 
-			sessionsMap[startTime] = endTime
-			noOfLines += 1
+			records = append(records, record{startTime: startTime, endTime: endTime})
 		}
 	}
 
@@ -87,21 +73,50 @@ func compressWAL() {
 		log.Fatal(err)
 	}
 
-	sessionsLen := len(sessionsMap)
-	log.Printf("compressWAL found %d valid records\n", noOfLines)
+	log.Printf("getRecordsFromWAL done, found %d valid records\n", len(records))
+	return records
+}
 
-	if noOfLines == sessionsLen {
+func dumpToWAL(content string) {
+	log.Printf("dumpToWAL involked for content len %d\n", len(content))
+
+	file, err := os.OpenFile(WAL_FILE, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	_, err = file.Write([]byte(content))
+	if err != nil {
+		log.Fatalf("Failed to write to file: %v\n", err)
+	}
+
+	log.Printf("dumpToWAL done")
+}
+
+func compressWAL() {
+	log.Println("compressWAL involked ...")
+
+	sessionsMap := make(map[time.Time]time.Time)
+
+	records := getRecordsFromWAL()
+	log.Printf("compressWAL found %d valid records\n", len(records))
+
+	for _, record := range records {
+		sessionsMap[record.startTime] = record.endTime
+	}
+	if len(records) == len(sessionsMap) {
 		return
 	}
 
-	records := make([]string, sessionsLen)
+	stringEntries := make([]string, len(sessionsMap))
 	i := 0
 	for k, v := range sessionsMap {
-		records[i] = fmt.Sprintf("%v,%v", k, v)
+		stringEntries[i] = fmt.Sprintf("%v,%v", k, v)
 		i += 1
 	}
 
-	dumpToWAL(strings.Join(records, "\n") + "\n")
+	dumpToWAL(strings.Join(stringEntries, "\n") + "\n")
 
-	log.Printf("compressWAL done from %d to %d\n", noOfLines, sessionsLen)
+	log.Printf("compressWAL done from %d to %d\n", len(records), len(sessionsMap))
 }
