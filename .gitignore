@@ -29,3 +29,6 @@ productivity-counter
 
 # log
 *.log
+
+# csv
+*.csv

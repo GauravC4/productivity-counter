@@ -27,15 +27,25 @@ func timer(stop <-chan bool, done chan<- bool) {
 	ticker := time.NewTicker(time.Second * 1)
 	defer ticker.Stop()
 
+	checkpointTime := 0
+
 	log.Printf("Starting session at : %v", startTime)
 	for {
 		select {
 		case t := <-ticker.C:
 			elapsedTime := t.Sub(startTime)
 			fmt.Printf("\rElapsed time : %v", formatDuration(elapsedTime))
+
+			// save to wal every minute
+			checkpointTime += 1
+			if checkpointTime >= 5 {
+				writeSessionToWAL(startTime, time.Now())
+				checkpointTime = 0
+			}
 		case <-stop:
 			fmt.Println("Stopping timer.")
 			done <- true
+			writeSessionToWAL(startTime, time.Now())
 			log.Println("Timer function stopped")
 			return
 		}
