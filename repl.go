@@ -20,10 +20,10 @@ func GetCommands() map[string]cliCommand {
 			description: "Start the clock.",
 			callback:    commandStart,
 		},
-		"stop": {
-			name:        "stop",
-			description: "Stop the clock.",
-			callback:    commandStop,
+		"compress": {
+			name:        "compress",
+			description: "Compress WAL file by removing redundant sessions.",
+			callback:    commandCompress,
 		},
 		"help": {
 			name:        "help",

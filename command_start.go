@@ -43,9 +43,11 @@ func timer(stop <-chan bool, done chan<- bool) {
 				checkpointTime = 0
 			}
 		case <-stop:
-			fmt.Println("Stopping timer.")
 			done <- true
+
+			// cleanup
 			writeSessionToWAL(startTime, time.Now())
+			compressWAL()
 			log.Println("Timer function stopped")
 			return
 		}
