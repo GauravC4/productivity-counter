@@ -23,3 +23,9 @@ go.work.sum
 
 # env file
 .env
+
+# build
+productivity-counter
+
+# log
+*.log
