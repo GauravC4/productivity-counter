@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func commandStart() error {
+func commandStart(args []string) error {
 	log.Printf("commandStart invoked ...")
 
 	stop := make(chan bool) // Channel to signal stopping timer
@@ -34,7 +34,7 @@ func timer(stop <-chan bool, done chan<- bool) {
 		select {
 		case t := <-ticker.C:
 			elapsedTime := t.Sub(startTime)
-			fmt.Printf("\rElapsed time : %v", formatDuration(elapsedTime))
+			fmt.Printf("\rElapsed time : %v", elapsedTime.Truncate(time.Second).String())
 
 			// save to wal every minute
 			checkpointTime += 1

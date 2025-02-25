@@ -1,6 +1,6 @@
 package main
 
-func commandCompress() error {
+func commandCompress(args []string) error {
 	compressWAL()
 	return nil
 }

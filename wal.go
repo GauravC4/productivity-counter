@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
 	"time"
 )
@@ -12,6 +13,7 @@ import (
 type record struct {
 	startTime time.Time
 	endTime   time.Time
+	duration  time.Duration
 }
 
 const WAL_FILE = "wal.csv"
@@ -109,11 +111,23 @@ func compressWAL() {
 		return
 	}
 
-	stringEntries := make([]string, len(sessionsMap))
+	// sort session map keys
+	sessionStartTimes := make([]time.Time, len(sessionsMap))
 	i := 0
-	for k, v := range sessionsMap {
-		stringEntries[i] = fmt.Sprintf("%v,%v", k, v)
-		i += 1
+	for k := range sessionsMap {
+		sessionStartTimes[i] = k
+		i++
+	}
+	sort.Slice(sessionStartTimes, func(i, j int) bool {
+		return sessionStartTimes[i].Before(sessionStartTimes[j])
+	})
+
+	// iterate via sorted session maps
+	stringEntries := make([]string, len(sessionsMap))
+	i = 0
+	for _, k := range sessionStartTimes {
+		stringEntries[i] = fmt.Sprintf("%v,%v", k, sessionsMap[k])
+		i++
 	}
 
 	dumpToWAL(strings.Join(stringEntries, "\n") + "\n")

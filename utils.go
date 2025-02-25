@@ -2,18 +2,17 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
 
-func formatDuration(d time.Duration) string {
-	hours := int(d.Hours())
-	minutes := int(d.Minutes()) % 60
-	seconds := int(d.Seconds()) % 60
+func beginOfDay(t time.Time) time.Time {
+	year, month, day := t.Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+}
 
-	if hours > 0 {
-		return fmt.Sprintf("%dh %dm %ds", hours, minutes, seconds)
-	} else if minutes > 0 {
-		return fmt.Sprintf("%dm %ds", minutes, seconds)
-	}
-	return fmt.Sprintf("%ds", seconds)
+func getProgressBar(hours float64, time string) string {
+	maxValue := 12
+	barLen := 4.0
+	return fmt.Sprintf("[%s%s] %s / %dh\n", strings.Repeat("#", max(0, int(hours*barLen))), strings.Repeat(".", max(0, maxValue*int(barLen)-int(hours*barLen))), time, maxValue)
 }

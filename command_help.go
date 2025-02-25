@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func commandHelp() error {
+func commandHelp(args []string) error {
 	fmt.Println("Welcome to the Productivity Clock!")
 	fmt.Print("\nUsage:\n\n")
 	for _, val := range GetCommands() {

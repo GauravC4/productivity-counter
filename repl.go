@@ -10,7 +10,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(args []string) error
 }
 
 func GetCommands() map[string]cliCommand {
@@ -29,6 +29,11 @@ func GetCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Display a help message.",
 			callback:    commandHelp,
+		},
+		"analyse": {
+			name:        "analyse",
+			description: "Accepts 2 arguments <n> and <v>. Displays analysis for last n days with sessions if v.",
+			callback:    commandAnalyse,
 		},
 		"exit": {
 			name:        "exit",
@@ -54,8 +59,9 @@ func StartRepl() {
 		}
 
 		command := cleanUserInputArr[0]
+		args := cleanUserInputArr[1:]
 		if cmd, ok := GetCommands()[command]; ok {
-			err := cmd.callback()
+			err := cmd.callback(args)
 			if err != nil {
 				fmt.Printf("Error : %v\n", err)
 			}
