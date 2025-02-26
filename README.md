@@ -1,4 +1,4 @@
-# productivity-counter
+# Productivity Counter
 
 I built this CLI stopwatch in GO for recording my productive work sessions and charting them like screen time graphs.
 
