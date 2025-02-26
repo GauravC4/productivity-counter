@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const CHECKPOINT_INTERVAL = 60 * 5 // 5 mins
+
 func commandStart(args []string) error {
 	log.Printf("commandStart invoked ...")
 
@@ -36,9 +38,9 @@ func timer(stop <-chan bool, done chan<- bool) {
 			elapsedTime := t.Sub(startTime)
 			fmt.Printf("\rElapsed time : %v", elapsedTime.Truncate(time.Second).String())
 
-			// save to wal every minute
+			// save to wal every checkpoint
 			checkpointTime += 1
-			if checkpointTime >= 5 {
+			if checkpointTime >= CHECKPOINT_INTERVAL {
 				writeSessionToWAL(startTime, time.Now())
 				checkpointTime = 0
 			}

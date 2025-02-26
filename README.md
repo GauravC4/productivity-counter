@@ -32,7 +32,7 @@ The following commands are available in the REPL:
 ## Command Details
 
 ### `start`
-Starts a new productive work session. The session will be recorded in the WAL (Write-Ahead Log) file. Press 'z' and Enter to stop the session.
+Starts a new productive work session. The session will be recorded in the WAL (Write-Ahead Log) file every 5min. Press 'z' and Enter to stop the session.
 
 ### `analyse <n> <v>`
 Displays analysis for the last n days. If v is provided, it will display verbose output with session details.
